@@ -30,6 +30,9 @@ def cal_si_snr_with_pit(source, estimate_source, source_lengths):
         estimate_source: [B, C, T]
         source_lengths: [B], each item is between [0, T]
     """
+    # print('\n\n\n', source.size(), estimate_source.size())
+
+    source = source.squeeze()
     assert source.size() == estimate_source.size()
     B, C, T = source.size()
     # mask padding position along T
@@ -37,6 +40,7 @@ def cal_si_snr_with_pit(source, estimate_source, source_lengths):
     estimate_source *= mask
 
     # Step 1. Zero-mean norm
+    print('source_lengths.size', source_lengths.size)
     num_samples = source_lengths.view(-1, 1, 1).float()  # [B, 1, 1]
     mean_target = torch.sum(source, dim=2, keepdim=True) / num_samples
     mean_estimate = torch.sum(estimate_source, dim=2, keepdim=True) / num_samples
@@ -108,7 +112,13 @@ def get_mask(source, source_lengths):
     B, _, T = source.size()
     mask = source.new_ones((B, 1, T))
     for i in range(B):
-        mask[i, :, source_lengths[i]:] = 0
+        try:
+            mask[i, :, source_lengths[i]:] = 0
+        except Exception as err:
+            print(err)
+            print(i)
+            raise err
+
     return mask
 
 

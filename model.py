@@ -1,6 +1,7 @@
 import torch
 from torch.nn import functional as F
 from torch import nn
+from utils import overlap_and_add
 
 EPS = 1e-8
 
@@ -24,6 +25,7 @@ class Encoder(nn.Module):
         Returns:
             mixture_w: [M, N, K], where K = (T-L)/(L/2)+1 = 2T/L-1
         """
+        # print(mixture.size)
         mixture = torch.unsqueeze(mixture, 1)  # [M, 1, T]
         mixture_w = F.relu(self.conv1d_U(mixture))  # [M, N, K]
         return mixture_w
@@ -309,4 +311,21 @@ class ConvTasNet(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_normal_(p)
 
-        return
+    def forward(self, mixture):
+        """
+        Args:
+            mixture: [M, T], M is batch size, T is #samples
+        Returns:
+            est_source: [M, C, T]
+        """
+        mixture = mixture.squeeze(1)
+
+        mixture_w = self.encoder(mixture)
+        est_mask = self.separator(mixture_w)
+        est_source = self.decoder(mixture_w, est_mask)
+
+        # T changed after conv1d in encoder, fix it here
+        T_origin = mixture.size(-1)
+        T_conv = est_source.size(-1)
+        est_source = F.pad(est_source, (0, T_origin - T_conv))
+        return est_source

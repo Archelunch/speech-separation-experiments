@@ -2,6 +2,7 @@ import pandas as pd
 import random
 
 import torch
+import numpy as np
 
 from torch.utils.data import Dataset
 import torchaudio
@@ -51,4 +52,24 @@ class SpeechDataset(Dataset):
         audios = torch.stack([self.crop_audio(self.get_audio(audio))
                               for audio in samples['path'].values])
         mixed_audio = self.mix_audio(audios)
-        return {'speakers': speakers, 'audio_input': mixed_audio, 'audio_targets': audios}
+
+        # print('\n\n\n', mixed_audio.shape)
+        # mixed_audio = np.swapaxes(mixed_audio, 0, 4)
+        # mixed_audio = np.reshape(mixed_audio, (mixed_audio.shape[0], 1, 32))
+
+        # audios = np.swapaxes(audios, 0, 4)
+        # audios = np.reshape(audios, (audios.shape[0], 1, 32))
+
+        return {'speakers': speakers,
+        'audio_input': mixed_audio,
+        'audio_targets': audios, 'lengths': mixed_audio.size(1)}
+
+
+
+
+
+
+
+
+
+
