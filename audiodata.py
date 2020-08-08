@@ -11,7 +11,7 @@ import torchaudio
 class SpeechDataset(Dataset):
     """Wrapper for speech datasets"""
 
-    def __init__(self, root_dir: str, meta_info: str, transform: torch.nn.Sequential = None, speakers_count: int = 2, sample_rate: int = 16000, duration: int = 4):
+    def __init__(self, root_dir: str, meta_info: str, transform: torch.nn.Sequential = None, speakers_count: int = 2, sample_rate: int = 8000, duration: int = 4):
         self.root_dir = root_dir
         self.meta_info = pd.read_csv(f"{root_dir}/{meta_info}", sep='\t')
         self.transform = transform

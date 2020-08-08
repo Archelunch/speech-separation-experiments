@@ -67,11 +67,11 @@ class SpeechSeparationModel(pl.LightningModule):
 
     def train_dataloader(self):
         # REQUIRED
-        return DataLoader(self.train_set, batch_size=32)
+        return DataLoader(self.train_set, batch_size=16)
 
     def val_dataloader(self):
         # OPTIONAL
-        return DataLoader(self.val_set, batch_size=32)
+        return DataLoader(self.val_set, batch_size=16)
 
 
 if __name__ == "__main__":
