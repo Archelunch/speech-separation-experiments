@@ -21,7 +21,7 @@ class SpeechDataset(Dataset):
             list(self.meta_info.client_id.unique()))}
 
     def __len__(self):
-        return len(self.meta_info)/self.speakers_count
+        return int(len(self.meta_info)/self.speakers_count)
 
     def get_audio(self, audio_name: str) -> torch.Tensor:
         waveform, sample_rate = torchaudio.load(
