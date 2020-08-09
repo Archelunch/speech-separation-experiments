@@ -17,7 +17,6 @@ class SpeechSeparationModel(pl.LightningModule):
         self.val_set = val_set
 
     def forward(self, data):
-        # print(data.shape)
         return self.net.forward(data)
 
     def training_step(self, batch, batch_nb):
@@ -41,13 +40,9 @@ class SpeechSeparationModel(pl.LightningModule):
         }
 
     def validation_step(self, batch, batch_nb):
-        # np.array([mix.shape[0] for mix in mixtures])
-        # print("batch['audio_input'].shape", batch['audio_input'].shape)
-
         padded_mixture, mixture_lengths, padded_source = \
             batch['audio_input'], batch['lengths'], batch['audio_targets']
 
-        # print('padded_mixture', padded_mixture.shape)
         estimate_source = self.forward(padded_mixture)
 
         loss, max_snr, estimate_source, reorder_estimate_source = \
@@ -56,7 +51,6 @@ class SpeechSeparationModel(pl.LightningModule):
         return {'val_loss': loss.item()}
 
     def validation_epoch_end(self, outputs):
-        # print(outputs[0]['val_loss'])
         val_loss = torch.stack([torch.Tensor([x['val_loss']]) for x in outputs]).mean()
         log = {'avg_val_loss': val_loss}
         return {'val_loss': val_loss, 'log': log}

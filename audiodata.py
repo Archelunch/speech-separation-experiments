@@ -11,7 +11,8 @@ import torchaudio
 class SpeechDataset(Dataset):
     """Wrapper for speech datasets"""
 
-    def __init__(self, root_dir: str, meta_info: str, transform: torch.nn.Sequential = None, speakers_count: int = 2, sample_rate: int = 8000, duration: int = 4):
+    def __init__(self, root_dir: str, meta_info: str, transform: torch.nn.Sequential = None, speakers_count: int = 2,
+                 sample_rate: int = 8000, duration: int = 4):
         self.root_dir = root_dir
         self.meta_info = pd.read_csv(f"{root_dir}/{meta_info}", sep='\t')
         self.transform = transform
@@ -22,7 +23,7 @@ class SpeechDataset(Dataset):
             list(self.meta_info.client_id.unique()))}
 
     def __len__(self):
-        return int(len(self.meta_info)/self.speakers_count)
+        return int(len(self.meta_info) / self.speakers_count)
 
     def get_audio(self, audio_name: str) -> torch.Tensor:
         waveform, sample_rate = torchaudio.load(
@@ -33,17 +34,17 @@ class SpeechDataset(Dataset):
         return self.transform(waveform) if self.transform else waveform
 
     def crop_audio(self, audio: torch.Tensor) -> torch.Tensor:
-        temp = torch.zeros((1, self.sample_rate*self.duration))
-        if audio.size(1) < self.sample_rate*self.duration:
-            offset = random.randint(0, temp.size(1)-audio.size(1))
-            temp[0, offset:audio.size(1)+offset] = audio[0]
+        temp = torch.zeros((1, self.sample_rate * self.duration))
+        if audio.size(1) < self.sample_rate * self.duration:
+            offset = random.randint(0, temp.size(1) - audio.size(1))
+            temp[0, offset:audio.size(1) + offset] = audio[0]
         else:
             offset = random.randint(0, audio.size(1) - temp.size(1))
-            temp[0] = audio[0, offset:temp.size(1)+offset]
+            temp[0] = audio[0, offset:temp.size(1) + offset]
         return temp
 
     def mix_audio(self, audios: torch.Tensor) -> torch.Tensor:
-        return audios.sum(dim=0)/self.speakers_count
+        return audios.sum(dim=0) / self.speakers_count
 
     def __getitem__(self, idx):
         samples = self.meta_info.sample(self.speakers_count)
@@ -53,23 +54,8 @@ class SpeechDataset(Dataset):
                               for audio in samples['path'].values])
         mixed_audio = self.mix_audio(audios)
 
-        # print('\n\n\n', mixed_audio.shape)
-        # mixed_audio = np.swapaxes(mixed_audio, 0, 4)
-        # mixed_audio = np.reshape(mixed_audio, (mixed_audio.shape[0], 1, 32))
-
-        # audios = np.swapaxes(audios, 0, 4)
-        # audios = np.reshape(audios, (audios.shape[0], 1, 32))
-
-        return {'speakers': speakers,
-        'audio_input': mixed_audio,
-        'audio_targets': audios, 'lengths': mixed_audio.size(1)}
-
-
-
-
-
-
-
-
-
-
+        return {
+            'speakers': speakers,
+            'audio_input': mixed_audio,
+            'audio_targets': audios, 'lengths': mixed_audio.size(1)
+        }

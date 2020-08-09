@@ -30,7 +30,6 @@ def cal_si_snr_with_pit(source, estimate_source, source_lengths):
         estimate_source: [B, C, T]
         source_lengths: [B], each item is between [0, T]
     """
-    # print('\n\n\n', source.size(), estimate_source.size())
 
     source = source.squeeze()
     assert source.size() == estimate_source.size()
@@ -92,7 +91,6 @@ def reorder_source(source, perms, max_snr_idx):
     # [B, C], permutation whose SI-SNR is max of each utterance
     # for each utterance, reorder estimate source according this permutation
     max_snr_perm = torch.index_select(perms, dim=0, index=max_snr_idx)
-    # print('max_snr_perm', max_snr_perm)
     # maybe use torch.gather()/index_select()/scatter() to impl this?
     reorder_source = torch.zeros_like(source)
     for b in range(B):

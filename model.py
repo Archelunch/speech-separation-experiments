@@ -25,7 +25,6 @@ class Encoder(nn.Module):
         Returns:
             mixture_w: [M, N, K], where K = (T-L)/(L/2)+1 = 2T/L-1
         """
-        # print(mixture.size)
         mixture = torch.unsqueeze(mixture, 1)  # [M, 1, T]
         mixture_w = F.relu(self.conv1d_U(mixture))  # [M, N, K]
         return mixture_w
