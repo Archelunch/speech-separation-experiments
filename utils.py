@@ -72,5 +72,3 @@ if __name__ == '__main__':
     frame_step = 2
     signal = torch.randint(5, (M, C, K, N))
     result = overlap_and_add(signal, frame_step)
-    print(signal)
-    print(result)

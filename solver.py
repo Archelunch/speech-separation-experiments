@@ -35,8 +35,10 @@ class SpeechSeparationModel(pl.LightningModule):
         # total_loss += loss.item()
 
         return {
-            'loss': loss.item(),
-            'log': f'Batch index: {batch_nb}. Loss: {loss.item()}'
+            'loss': loss,
+            'log': {
+                'train_loss': loss
+            }
         }
 
     def validation_step(self, batch, batch_nb):
@@ -61,11 +63,11 @@ class SpeechSeparationModel(pl.LightningModule):
 
     def train_dataloader(self):
         # REQUIRED
-        return DataLoader(self.train_set, batch_size=16)
+        return DataLoader(self.train_set, batch_size=4)
 
     def val_dataloader(self):
         # OPTIONAL
-        return DataLoader(self.val_set, batch_size=16)
+        return DataLoader(self.val_set, batch_size=4)
 
 
 if __name__ == "__main__":
@@ -77,5 +79,5 @@ if __name__ == "__main__":
     net = ConvTasNet()
     speech_separation = SpeechSeparationModel(net, train_set, val_set)
 
-    trainer = pl.Trainer(gpus=1)
+    trainer = pl.Trainer(gpus=1, gradient_clip_val=5)
     trainer.fit(speech_separation)

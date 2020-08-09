@@ -39,7 +39,6 @@ def cal_si_snr_with_pit(source, estimate_source, source_lengths):
     estimate_source *= mask
 
     # Step 1. Zero-mean norm
-    print('source_lengths.size', source_lengths.size)
     num_samples = source_lengths.view(-1, 1, 1).float()  # [B, 1, 1]
     mean_target = torch.sum(source, dim=2, keepdim=True) / num_samples
     mean_estimate = torch.sum(estimate_source, dim=2, keepdim=True) / num_samples
@@ -110,12 +109,7 @@ def get_mask(source, source_lengths):
     B, _, T = source.size()
     mask = source.new_ones((B, 1, T))
     for i in range(B):
-        try:
-            mask[i, :, source_lengths[i]:] = 0
-        except Exception as err:
-            print(err)
-            print(i)
-            raise err
+        mask[i, :, source_lengths[i]:] = 0
 
     return mask
 
@@ -129,11 +123,5 @@ if __name__ == "__main__":
     source[1, :, -3:] = 0
     estimate_source[1, :, -3:] = 0
     source_lengths = torch.LongTensor([T, T - 3])
-    print('source', source)
-    print('estimate_source', estimate_source)
-    print('source_lengths', source_lengths)
 
     loss, max_snr, estimate_source, reorder_estimate_source = cal_loss(source, estimate_source, source_lengths)
-    print('loss', loss)
-    print('max_snr', max_snr)
-    print('reorder_estimate_source', reorder_estimate_source)
